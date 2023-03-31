@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -10,6 +11,15 @@ import (
 
 	"github.com/rs/cors"
 	"gopkg.in/yaml.v3"
+)
+
+const (
+	des = " a tool for activation"
+)
+
+var (
+	appVersion = "Unknown"
+	appDate    = "Unknown"
 )
 
 type Config struct {
@@ -56,6 +66,14 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	showVersion := false
+	flag.BoolVar(&showVersion, "v", false, "show version")
+	flag.Parse()
+	if showVersion {
+		fmt.Printf("app version is %s appdate is %s", appVersion, appDate)
+		return
+	}
+
 	buf, err := os.ReadFile("./config.yaml")
 	if err != nil {
 		log.Fatal("open file config.yaml failed", err)

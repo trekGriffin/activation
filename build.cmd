@@ -1,0 +1,1 @@
+go build -ldflags "-X main.appVersion=$(git describe --tags --dirty) -X 'main.appDate=$(date /T)' "  
