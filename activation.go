@@ -54,14 +54,10 @@ func activateHandler(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(http.StatusOK)
 		return
 	}
-
 	fmt.Println("check token failed", query)
-
 	res.WriteHeader(http.StatusUnauthorized)
-
 }
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-
 	fmt.Fprint(w, "hello")
 }
 
@@ -73,6 +69,7 @@ func main() {
 		fmt.Printf("app version is %s appdate is %s", appVersion, appDate)
 		return
 	}
+	fmt.Println(des)
 
 	buf, err := os.ReadFile("./config.yaml")
 	if err != nil {
