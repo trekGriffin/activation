@@ -47,7 +47,13 @@ func ipHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("split source ip port err", err)
 		return
 	}
+	ip2 := r.Header.Get("X-Forwarded-For")
+	if ip2 != "" {
+		fmt.Fprint(w, ip+" X-Forwarded-For "+ip2)
+		return
+	}
 	fmt.Fprint(w, ip)
+
 }
 func activateHandler(res http.ResponseWriter, req *http.Request) {
 	query := req.URL.Query().Get("token")
