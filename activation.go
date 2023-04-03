@@ -27,7 +27,7 @@ type Config struct {
 	Port     string   `yaml:"port"`
 	Token    []string `yaml:"token"`
 	Redirect string   `yaml:"redirect"`
-	Contains string   `yaml:"gotrek.top"`
+	Contains string   `yaml:"contains"`
 }
 
 var config Config
@@ -41,7 +41,7 @@ func checkToken(query string) bool {
 	return false
 }
 func ipHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("got a new request", "/")
+	log.Println("got a new request /ip")
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		log.Println("split source ip port err", err)
@@ -71,18 +71,23 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	log.Println("here is host: ", r.Host, " contains:", config.Contains)
 	http.Redirect(w, r, config.Redirect+r.RequestURI, http.StatusSeeOther)
 }
 func checkConfig() error {
-	if strings.Compare(config.Contains, "") == 0 {
+	if config.Contains == "" {
 		return errors.New("contains is empty")
 	}
-	if strings.Compare(config.Port, "") == 0 {
+	fmt.Print("contains:", config.Contains)
+	if config.Port == "" {
 		return errors.New("port is empty")
 	}
+	fmt.Print("Port:", config.Port)
+
 	if len(config.Token) == 0 {
 		return errors.New("token is empty")
 	}
+	fmt.Print("Token:", config.Token)
 
 	return nil
 }
@@ -119,7 +124,10 @@ func main() {
 	if err != nil {
 		log.Fatal("unmarshal failed", err)
 	}
-	checkConfig()
+	err = checkConfig()
+	if err != nil {
+		log.Fatal("check config content err:", err)
+	}
 	//	http.HandleFunc("/", handler)
 	log.Printf("config: port : %s, token: %s", config.Port, config.Token)
 
