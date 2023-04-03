@@ -1,2 +1,6 @@
-port: ":56567"
+port: ":80"
 token: ["wangke","aaa"]
+# redirect for the default url
+redirect: "https://g.gotrek.top:8443"
+# judge if the host is contains
+#contains: "gotrek.top"

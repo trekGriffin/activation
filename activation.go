@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -14,7 +15,7 @@ import (
 )
 
 const (
-	des = " a tool for activation"
+	des = " a tool for activation in the us server"
 )
 
 var (
@@ -23,8 +24,10 @@ var (
 )
 
 type Config struct {
-	Port  string   `yaml:"port"`
-	Token []string `yaml:"token"`
+	Port     string   `yaml:"port"`
+	Token    []string `yaml:"token"`
+	Redirect string   `yaml:"redirect"`
+	Contains string   `yaml:"gotrek.top"`
 }
 
 var config Config
@@ -58,18 +61,49 @@ func activateHandler(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusUnauthorized)
 }
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "hello")
+	if !strings.Contains(r.Host, config.Contains) {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	http.Redirect(w, r, config.Redirect+r.RequestURI, http.StatusSeeOther)
+}
+func checkConfig() error {
+	if strings.Compare(config.Contains, "") == 0 {
+		return errors.New("contains is empty")
+	}
+	if strings.Compare(config.Port, "") == 0 {
+		return errors.New("port is empty")
+	}
+	if len(config.Token) == 0 {
+		return errors.New("token is empty")
+	}
+
+	return nil
 }
 
 func main() {
 	showVersion := false
+	configFile := ""
 	flag.BoolVar(&showVersion, "v", false, "show version")
+	flag.StringVar(&configFile, "c", "/etc/trek/config.yaml", "specify config")
+
 	flag.Parse()
 	if showVersion {
 		fmt.Printf("app version is %s appdate is %s", appVersion, appDate)
 		return
 	}
 	fmt.Println(des)
+	_, err := os.Stat(configFile)
+	if err != nil {
+		const default2 = "./config.yaml"
+		_, err = os.Stat(default2)
+		if err != nil {
+			fmt.Println(" config file is not exist:", configFile, " and", default2)
+			os.Exit(1)
+		}
+		fmt.Println(configFile, " not exist, using the default ", default2)
+		configFile = default2
+	}
 
 	buf, err := os.ReadFile("./config.yaml")
 	if err != nil {
@@ -79,14 +113,14 @@ func main() {
 	if err != nil {
 		log.Fatal("unmarshal failed", err)
 	}
-
+	checkConfig()
 	//	http.HandleFunc("/", handler)
 	log.Printf("config: port : %s, token: %s", config.Port, config.Token)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", rootHandler)
 	mux.HandleFunc("/activate", activateHandler)
 	mux.HandleFunc("/ip", ipHandler)
+	mux.HandleFunc("/", rootHandler)
 	log.Println("servier is listening", config.Port)
 	err = http.ListenAndServe(config.Port, cors.Default().Handler(mux))
 	if err != nil {

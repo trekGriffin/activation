@@ -14,4 +14,8 @@ token: ["wangke","aaa"]
 1.0.1
 * allow cors
 * show version
-* have the show ip 
+* have the function of showing ip 
+
+1.0.2
+* replace nginx with this software( have the same redirect function and show the real ip) 
+* 
