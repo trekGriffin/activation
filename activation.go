@@ -96,7 +96,7 @@ func main() {
 	showVersion := false
 	configFile := ""
 	flag.BoolVar(&showVersion, "v", false, "show version")
-	flag.StringVar(&configFile, "c", "/etc/trek/config.yaml", "specify config")
+	flag.StringVar(&configFile, "c", "/etc/activation/config.yaml", "specify config file path")
 
 	flag.Parse()
 	if showVersion {
@@ -107,18 +107,20 @@ func main() {
 	_, err := os.Stat(configFile)
 	if err != nil {
 		const default2 = "./config.yaml"
+		fmt.Println("open ", configFile, " failed ", err, " trying to open ", default2)
+
 		_, err = os.Stat(default2)
 		if err != nil {
-			fmt.Println(" config file is not exist:", configFile, " and", default2)
+			fmt.Println(default2, " doesn't exist too. app exit")
 			os.Exit(1)
 		}
-		fmt.Println(configFile, " not exist, using the default ", default2)
+		fmt.Println(" using the config file: ", default2)
 		configFile = default2
 	}
 
-	buf, err := os.ReadFile("./config.yaml")
+	buf, err := os.ReadFile(configFile)
 	if err != nil {
-		log.Fatal("open file config.yaml failed", err)
+		log.Fatal("cannot read from ", err)
 	}
 	err = yaml.Unmarshal(buf, &config)
 	if err != nil {

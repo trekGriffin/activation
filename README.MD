@@ -22,3 +22,6 @@ token: ["wangke","aaa"]
 
 1.0.4
 * show the real ip in the X-Forwarded-For
+  
+1.0.5
+* fixed the config file path logic.
