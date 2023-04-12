@@ -1,7 +1,9 @@
 # function
 * return the ip of the requestor http://xxx/ip
+* return the ip info http://xx/ip/1.1.1.1
 * activation http://xxx/activate?token=aaa
 * redirect http://fldjsalfjds/other
+
 
 # requirement 
 new a config.yaml file
@@ -12,6 +14,9 @@ token: ["wangke","aaa"]
 
 
 # update
+23.04.12
+add func return the ip info
+move config into the init()
 1.0.1
 * allow cors
 * show version
